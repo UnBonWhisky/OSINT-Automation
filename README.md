@@ -1,1 +1,1 @@
-# TP2-OSINT-Automation
+# TP2 - OSINT Automation

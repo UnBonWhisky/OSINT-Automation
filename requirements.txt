@@ -1,0 +1,32 @@
+# Asked by dnscan :
+dnspython==2.2.1
+netaddr==0.8.0
+cryptography==39.0.0
+packaging==22.0
+
+# For shodan :
+shodan==1.28.0
+
+# For theHarvester :
+aiodns==3.0.0
+aiofiles==22.1.0
+aiohttp==3.8.3
+aiomultiprocess==0.9.0
+aiosqlite==0.18.0
+beautifulsoup4==4.11.1
+censys==2.1.9
+certifi==2022.12.7
+fastapi==0.89.1
+lxml==4.9.2
+ujson==5.7.0
+pyppeteer==1.0.2
+PyYAML==6.0
+requests==2.28.1
+retrying==1.3.4
+setuptools==65.6.3
+slowapi==0.1.7
+uvicorn==0.20.0
+uvloop==0.17.0; platform_system != "Windows"
+
+# For urlscan.io API :
+urlscan-py==1.1.5

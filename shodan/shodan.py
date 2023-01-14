@@ -38,7 +38,7 @@ print("""
         Informations Générale :
         Adresse IP : {}
         Nom de l'entreprise : {}
-        Operating System : {}
+        Systeme d'opération : {}
         Numéro de Système Autonome (ASN) : {}
         Fournisseur Internet : {}
 

@@ -51,7 +51,7 @@ Vous devez OBLIGATOIREMENT choisir le nombre 1 OU le nombre 2 pour utiliser ce p
 Voici les réponses possibles :
 1. Scanner un domaine
 2. Scanner une liste de domaines (avec un fichier .txt)
-3. Utiliser une liste de mots personnalisée (avec un fichier .txt)
+3. Utiliser une liste de sous-domaines personnalisée (avec un fichier .txt)
 4. Threads à utiliser à la fois (entre 1 et 32, 8 par défaut)
 5. Scanner les adresses IPv6
 6. Effectuer un transfert de zone et quitter
@@ -73,16 +73,16 @@ Votre choix : """)
 	PassingArguments = ""
 	for x in range(len(argscan)):
      
-		if argscan[x] == 1 :
+		if argscan[x] == 1 : # Si on ne veut scanner qu'un seul domaine
 			reponse = input("Quel est le domaine que vous souhaitez scanner : ")
 			PassingArguments += f"-d {reponse} "
 
-		elif argscan[x] == 2 :
+		elif argscan[x] == 2 : # Si on veut scanner plusieurs domaines
 			ListeFichiers = []
 			for filename in os.listdir(directory):
 				if filename.endswith('.txt'):
 					ListeFichiers.append(filename)
-			print(f"Voici la liste des fichiers txt trouvés dans {directory}. Lequel choisissez-vous pour votre attaque ?")
+			print(f"Voici la liste des fichiers txt trouvés dans {directory}.\nLequel contient votre liste de noms de domaines ?")
 			for x in range(len(ListeFichiers)):
 				print(f"{x+1}. {ListeFichiers[x]}")
 			try:
@@ -98,5 +98,24 @@ Votre choix : """)
 			reponse -= 1
 			PassingArguments += f"-l {directory}/{ListeFichiers[reponse]} "
 
-		elif argscan[x] == 3 :
+		elif argscan[x] == 3 : # Ajout d'une wordlist personnalisée
+			ListeFichiers = ['dnscan/subdomains-100.txt','dnscan/subdomains-500.txt','dnscan/subdomains-1000.txt','dnscan/subdomains-10000.txt','dnscan/subdomains-uk-500.txt','dnscan/subdomains-uk-1000.txt','dnscan/subdomains.txt']
+			for filename in os.listdir(directory):
+				if filename.endswith('.txt'):
+					ListeFichiers.append(filename)
+			print(f"Voici la liste des fichiers txt trouvés dans {directory}.\nLes fichiers de dnscan par défaut sont aussi affichés.\nLequel contient votre liste de sous-domaines ?")
+			for x in range(len(ListeFichiers)):
+				print(f"{x+1}. {ListeFichiers[x]}")
+			try:
+				reponse = int(input('Votre choix : '))
+			except:
+				reponse = -1
+
+			while reponse < 1 or reponse > len(ListeFichiers) :
+				try:
+					reponse = int(input(f"Vous n'avez pas choisi un nombre dans l'intervale 1-{len(ListeFichiers)}.\nFaites votre choix : "))
+				except:
+					reponse = -1
+			reponse -= 1
+			PassingArguments += f"-w {directory}/{ListeFichiers[reponse]} "
 dnscan()

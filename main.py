@@ -30,11 +30,11 @@ def start():
 	choix = None
 	while choix is None:
 		try:
-			choix = int(input("\nQuel programme souhaitez-vous lancer ?\n1. DNSCan\n2. Shodan\n3. theHarvester\n4. URLScan.io\n5. Quitter\nVotre choix : "))
-			if choix < 1 or choix > 5 :
+			choix = int(input("\nQuel programme souhaitez-vous lancer ?\n1. DNSCan\n2. Shodan\n3. theHarvester\n4. URLScan.io\n5. Google-Dorks\n6. Quitter\nVotre choix : "))
+			if choix < 1 or choix > 6 :
 				raise Error
 		except:
-			print("\nVous n'avez pas entré un chiffre entre 1 et 5.\nMerci de réessayer.\n")
+			print("\nVous n'avez pas entré un chiffre entre 1 et 6.\nMerci de réessayer.\n")
 			choix = None
 	return choix
 
@@ -288,7 +288,7 @@ Votre choix : """))
 
 def programme():
 	ALancer = 0
-	while ALancer != 5 :
+	while ALancer != 6 :
 		ALancer = start()
 		if ALancer == 1 :
 			dnscan()

@@ -213,6 +213,12 @@ Votre choix : """)
 
 		print("DNSCan est en cours d'execution, si vous ne voyez pas de contenu dans le fichier généré, merci de patienter quelques instants.")
 
+	else :
+		subprocess.Popen(f"mkdir \"{OutputDomaine}\"", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+		subprocess.Popen(f"python3 dnscan/dnscan.py {PassingArguments}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+
+	return
+
 
 def shodan():
     choix = None
@@ -250,6 +256,8 @@ Votre choix : """))
 		reponse = input('Veuillez entrer le nom de domaine de votre choix : ')
 
 
+
+
 def programme():
     ALancer = 0
 	while ALancer != 5 :
@@ -258,3 +266,4 @@ def programme():
 			dnscan()
 		elif ALancer == 2 :
 			shodan()
+		elif ALancer == 3 :

@@ -194,6 +194,7 @@ Votre choix : """)
 		elif argscan[x] == 15 : # Activer le mode verbeux
 			PassingArguments += '-v '
 
+	# Ajout du choix pour un affichage dans la console ou dans un fichier
 	choix = None
 	while choix is None:
 		try:
@@ -207,10 +208,53 @@ Votre choix : """)
 	if choix == 1:
 		PassingArguments += f"-o \"{directory}/{OutputDomaine}/dnscan-{datetime.datetime.now().strftime('%d%m%y')}.txt\""
 
-		subprocess.Popen(f"mkdir \"{OutputDomaine}\"", shell=True, stdout=subprocess.DEVNULL)
-		subprocess.Popen(f"python3 dnscan/dnscan.py {PassingArguments}", shell=True, stdout=subprocess.DEVNULL)
+		subprocess.Popen(f"mkdir \"{OutputDomaine}\"", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+		subprocess.Popen(f"python3 dnscan/dnscan.py {PassingArguments}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+		print("DNSCan est en cours d'execution, si vous ne voyez pas de contenu dans le fichier généré, merci de patienter quelques instants.")
 
 
-program = start()
-if program == 1 :
-	dnscan()
+def shodan():
+    choix = None
+    while choix is None :
+    	try: 
+    		choix = int(input("""
+Pour utiliser Shodan nous avons besoin d'une adresse IP ou d'un nom de domaine exacte
+Veuillez taper :
+1. Avoir des informations sur une adresse IP
+2. Avoir des informations sur un nom de domaine
+Votre choix : """))
+			if choix not in [1,2]:
+				raise Error
+		except :
+			print("Vous n'avez pas entré un nombre dans l'intervale 1-2")
+			choix = None
+
+	if choix == 1 : # Si on choisit de fournir un adresse IP
+		reponse = None
+		while reponse is None :
+			try :
+   				reponse = input('Veuillez entrer l\'adresse IPv4 de votre choix : ')
+				IPreponse = reponse.split(".")
+
+				for x in range(len(IPreponse)):
+					IPreponse[x] = int(IPreponse[x])
+
+				if len(IPreponse) != 4:
+					raise Error
+			except:
+				print("Vous n'avez pas rentré une adresse IPv4 correcte.")
+				reponse = None
+
+	if choix == 2 :
+		reponse = input('Veuillez entrer le nom de domaine de votre choix : ')
+
+
+def programme():
+    ALancer = 0
+	while ALancer != 5 :
+		ALancer = start()
+		if ALancer == 1 :
+			dnscan()
+		elif ALancer == 2 :
+			shodan()

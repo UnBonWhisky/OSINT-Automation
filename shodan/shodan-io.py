@@ -23,8 +23,7 @@ api = shodan.Shodan(SHODAN_API_KEY)
 host = api.host(args.ip)
 
 # Affichage des différentes informations récoltés par l'API Shodan
-print("""
-Informations Générale :
+output = """Informations Générale :
 Adresse IP : {}
 Nom de l'entreprise : {}
 Systeme d'opération : {}
@@ -35,6 +34,12 @@ Information de géolocalisation :
 Pays : {}
 Region : {}
 Ville : {}
-Code Postale : {}
-""".format(host['ip_str'], host.get('org', 'n/a'), host.get('os', 'n/a'), host.get('asn', 'n/a'), host.get('isp', 'n/a'),
-            host.get('country_name', 'n/a'), host.get('region_code', 'n/a'), host.get('city', 'n/a'), host.get('postal_code', 'n/a')))
+Code Postale : {}""".format(host['ip_str'], host.get('org', 'n/a'), host.get('os', 'n/a'), host.get('asn', 'n/a'), host.get('isp', 'n/a'),
+            host.get('country_name', 'n/a'), host.get('region_code', 'n/a'), host.get('city', 'n/a'), host.get('postal_code', 'n/a'))
+
+if args.output :
+    with open(args.output, 'w', encoding="utf-8") as filename :
+        filename.write(output)
+        filename.close()
+print(f"\n{output}")
+        

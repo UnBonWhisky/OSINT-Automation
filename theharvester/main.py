@@ -1,29 +1,5 @@
-'''
-import subprocess
-import os, sys
-sys.path.append(os.path.join(os.path.dirname(__file__))) # Ajout de l'emplacement du fichier au PATH pour le programme
-
-
-# Définit l'email ou le domaine de la cible
-cible = input("Entrer le domaine ou l'email de la cible : ")
-
-# Création du répertoire pour le résultat
-resulat_directory = f"{cible}_resultat"
-os.mkdir(resultat_directory)
-
-# Menu pour sélectionner l'outil à utiliser
-print("Sélectionne l'outil à utiliser:")
-print("1. Dnsscan")
-print("2. Shodan")
-print("3. TheHarvester")
-print("4. Urlscan.io")
-
-# Récupérer le choix réalisé
-choix = input()
-'''
-
 #Début de theHarvester
-
+'''
 import subprocess
 import sys,os
 
@@ -31,9 +7,63 @@ import sys,os
 domaine = input("Entre le domaine de la cible : ")
 
 # Entrée du nombre maximum de recherches via GOOGLE
-limite = input("Entre le nombre maximum de résultats de recherches Google : ")
+limite = int(input("Entre le nombre maximum de résultats de recherches Google : "))
 
 # test de lancement de theHarvester via subprocess
 cherche_domaine = subprocess.run(["theharvester", "-d", domaine, "-b", "google", "-l", limite], capture_output=True, text=True)
-print(cherche_domaine.stdout)
+#print(cherche_domaine.stdout)
+'''
+
+import os
+import sys
+import subprocess
+import argparse
+
+
+def run_theharvester(options):
+    try:
+        subprocess.run(["theharvester"] + options, check=True)
+        print("[+] Informations collectées avec succès.")
+    except subprocess.CalledProcessError as e:
+        print(f"[-] une erreur est apparue: {e}")
+        return 1
+    except FileNotFoundError as e:
+        print(f"[-] theHarvester n'a pas été trouvé: {e}")
+        return 1
+    except Exception as e:
+        print(f"[-] Une erreur inattendue est apparue: {e}")
+        return 1
+    return 0
+
+def main():
+    parser = argparse.ArgumentParser(description='Outil automatisé pour utiliser theHarvester')
+    parser.add_argument('-d', '--domain', help='Domaine à chercher')
+    parser.add_argument('-e', '--email', help='Email à chercher')
+    parser.add_argument('-b', '--browsers', help='navigateurs à utiliser pour la recherche')
+    parser.add_argument('-s', '--source', help='Source à utiliser')
+    parser.add_argument('-l', '--limit', help='Number de résultats à afficher')
+    parser.add_argument('-f', '--output', help='nom du fichier créé')
+    parser.add_argument('-v', '--verbose', help='Verbose output', action='store_true')
+    args = parser.parse_args()
+
+    options = []
+    if args.domain:
+        options += ['-d', args.domain]
+    if args.email:
+        options += ['-e', args.email]
+    if args.browsers:
+        options += ['-b', args.browsers]
+    if args.source:
+        options += ['-s', args.source]
+    if args.limit:
+        options += ['-l', args.limit]
+    if args.output:
+        options += ['-f', args.output]
+    if args.verbose:
+        options += ['-v']
+    return run_theharvester(options)
+
+if __name__ == "__main__":
+    sys.exit(main())
+
 

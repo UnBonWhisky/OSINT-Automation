@@ -30,3 +30,7 @@ uvloop==0.17.0; platform_system != "Windows"
 
 # For urlscan.io API :
 urlscan-py==1.1.5
+
+# For google dorks
+beautifulsoup4==4.11.1
+yagooglesearch==1.6.0

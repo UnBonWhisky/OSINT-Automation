@@ -7,13 +7,13 @@ import sys,os
 domaine = input("Entre le domaine de la cible : ")
 
 # Entrée du nombre maximum de recherches via GOOGLE
-limite = int(input("Entre le nombre maximum de résultats de recherches Google : "))
+limite = input("Entre le nombre maximum de résultats de recherches Google : ")
 
 # test de lancement de theHarvester via subprocess
-cherche_domaine = subprocess.run(["theharvester", "-d", domaine, "-b", "google", "-l", limite], capture_output=True, text=True)
-#print(cherche_domaine.stdout)
+cherche_domaine = subprocess.run(["theHarvester.py", "-d", domaine, "-b", "google", "-l", limite], capture_output=True, text=True)
+print(cherche_domaine.stdout)
 '''
-
+'''
 import os
 import sys
 import subprocess
@@ -22,7 +22,7 @@ import argparse
 
 def run_theharvester(options):
     try:
-        subprocess.run(["theharvester"] + options, check=True)
+        subprocess.run(["python3","theHarvester.py"]+ options, check=True)
         print("[+] Informations collectées avec succès.")
     except subprocess.CalledProcessError as e:
         print(f"[-] une erreur est apparue: {e}")
@@ -66,4 +66,33 @@ def main():
 if __name__ == "__main__":
     sys.exit(main())
 
+'''
+
+import subprocess
+import sys
+
+def run_theharvester(domain,outfile, sources):
+    try:
+        sources_args = '-b ' + sources
+        subprocess.run(["theharvester", "-d", domain, sources_args,"-l", "500", "-f", outfile], check=True)
+        print("[+] Information successfully collected.")
+    except subprocess.CalledProcessError as e:
+        print(f"[-] An error occured: {e}")
+        return 1
+    except FileNotFoundError as e:
+        print(f"[-] TheHarvester not found: {e}")
+        return 1
+    except Exception as e:
+        print(f"[-] An unexpected error occured: {e}")
+        return 1
+    return 0
+
+def main():
+    domain = sys.argv[1]
+    outfile = sys.argv[2]
+    sources = sys.argv[3]
+    return run_theharvester(domain,outfile, sources)
+
+'''if __name__ == "__main__":
+    sys.exit(main())'''
 

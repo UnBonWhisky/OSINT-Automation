@@ -32,7 +32,7 @@ def start():
 		try:
 			choix = int(input("\nQuel programme souhaitez-vous lancer ?\n1. DNSCan\n2. Shodan\n3. theHarvester\n4. URLScan.io\n5. Google-Dorks\n6. Quitter\nVotre choix : "))
 			if choix < 1 or choix > 6 :
-				raise Error
+				raise Exception
 		except:
 			print("\nVous n'avez pas entré un chiffre entre 1 et 6.\nMerci de réessayer.\n")
 			choix = None
@@ -42,6 +42,36 @@ def STRtoINT(argument):
 	for x in range(len(argument)) :
 		argument[x] = int(argument[x])
 	return argument
+
+def OutputScan(NomProgramme, OutputDomaine, commande):
+    # Ajout du choix pour un affichage dans la console ou dans un fichier
+	choix = None
+	while choix is None:
+		try:
+			choix = int(input("Souhaitez-vous obtenir le rendu dans la console ou dans un fichier ?\n1. Fichier\n2. Console\nVotre choix : "))
+			if choix not in [1,2] :
+				raise Exception
+		except:
+			print("\nVous n'avez pas entré un chiffre entre 1 et 2.\nMerci de réessayer.\n")
+			choix = None
+
+	if choix == 1:
+		commande += f"-o \"{directory}/output/{OutputDomaine}/{NomProgramme}-{datetime.datetime.now().strftime('%d%m%y')}.txt\""
+
+		if os.name == 'nt':
+			subprocess.Popen(f"mkdir output\\\"{OutputDomaine}\"", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+			subprocess.Popen(f"python3 {commande}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).communicate()
+
+		else:
+			subprocess.Popen(f"mkdir -p output/\"{OutputDomaine}\"", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+			subprocess.Popen(f"python3 {commande}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).communicate()
+
+		print(f"\n{NomProgramme} vient de terminer son execution, vous pouvez observer les résultats\nLe fichier est situé dans output/\"{OutputDomaine}/dnscan-{datetime.datetime.now().strftime('%d%m%y')}.txt\"")
+
+	else :
+		subprocess.Popen(f"python3 {commande}", shell=True).communicate()
+
+	return
 
 def dnscan():
 	argscan = []
@@ -136,7 +166,7 @@ Votre choix : """)
 				try:
 					reponse = int(input("Combien de threads souhaitez-vous utiliser à la fois ? (1-32, 8 par défaut)\nVotre choix : "))
 					if reponse < 1 or reponse > 32 :
-						raise Error
+						raise Exception
 				except:
 					print("\nVous n'avez pas entré un chiffre entre 1 et 32.\nMerci de réessayer.\n")
 					reponse = None
@@ -195,26 +225,7 @@ Votre choix : """)
 			PassingArguments += '-v '
 
 	# Ajout du choix pour un affichage dans la console ou dans un fichier
-	choix = None
-	while choix is None:
-		try:
-			choix = int(input("Souhaitez-vous obtenir le rendu dans la console ou dans un fichier ?\n1. Fichier\n2. Console\nVotre choix : "))
-			if choix not in [1,2] :
-				raise Error
-		except:
-			print("\nVous n'avez pas entré un chiffre entre 1 et 2.\nMerci de réessayer.\n")
-			choix = None
-
-	if choix == 1:
-		PassingArguments += f"-o \"{directory}/{OutputDomaine}/dnscan-{datetime.datetime.now().strftime('%d%m%y')}.txt\""
-
-		subprocess.Popen(f"mkdir \"{OutputDomaine}\"", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-		subprocess.Popen(f"python3 dnscan/dnscan.py {PassingArguments}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).communicate()
-
-		print(f"\nDNSCan vient de terminer son execution, vous pouvez observer les résultats\nLe fichier est situé dans \"{OutputDomaine}/dnscan-{datetime.datetime.now().strftime('%d%m%y')}.txt\"")
-
-	else :
-		subprocess.Popen(f"python3 dnscan/dnscan.py {PassingArguments}", shell=True).communicate()
+	OutputScan("DNSCan", OutputDomaine, f"dnscan/dnscan.py {PassingArguments}")
 
 	return
 
@@ -230,7 +241,7 @@ Veuillez taper :
 2. Avoir des informations sur un nom de domaine
 Votre choix : """))
 			if choix not in [1,2]:
-				raise Error
+				raise Exception
 		except :
 			print("Vous n'avez pas entré un nombre dans l'intervale 1-2")
 			choix = None
@@ -246,7 +257,7 @@ Votre choix : """))
 					IPreponse[x] = int(IPreponse[x])
 
 				if len(IPreponse) != 4:
-					raise Error
+					raise Exception
 			except:
 				print("Vous n'avez pas rentré une adresse IPv4 correcte.")
 				reponse = None
@@ -255,6 +266,102 @@ Votre choix : """))
 	if choix == 2 : # Si on choisit de fournir un nom de domaine
 		reponse = input('Veuillez entrer le nom de domaine de votre choix : ')
 		PassingArguments += f"-d {reponse} "
+
+	# Ajout du choix pour un affichage dans la console ou dans un fichier
+	OutputScan("Shodan", reponse, f"shodan/shodan-io.py {PassingArguments}")
+
+	return
+
+def theharvester():
+	argscan = []
+	while (1 not in argscan) :
+		argscan = input("""
+Quels arguments souhaitez-vous entrer dans votre commande ?
+Entrez votre réponse comme ceci si vous souhaitez entrer plusieurs arguments : 1,3,8
+Vous devez OBLIGATOIREMENT choisir le nombre 1 pour utiliser ce programme.
+
+Voici les réponses possibles :
+1. Scanner un domaine
+2. Utiliser un navigateur : data source : baidu, bing, bingapi, dogpile, google, googleCSE, googleplus, google-profiles, linkedin, pgp, twitter, vhost,virustotal, threatcrowd, crtsh, netcraft, yahoo, all
+3. Utiliser un serveur de résolution DNS différent de celui du système
+4. Vérifier le nom d'hôte via la résolution DNS et rechercher des hôtes virtuels
+5. Nombre de résultats à afficher (par défaut 500)
+6. Création d'un fichier XML et JSON de sortie 
+7. Vérifier si des domaines découverts sont vulnérables à des prises de contrôle
+8. Activer la recherche de serveur DNS
+9. Réaliser une force brute DNS sur le domaine
+10. Définir un numéro de départ pour les résultats de la recherche
+11. Utiliser des proxies pour les requêtes effectués
+
+Votre choix : """)
+
+		argscan = argscan.split(',')
+		argscan = STRtoINT(argscan)
+
+	PassingArguments = ""
+	for x in range(len(argscan)):
+		
+		if argscan[x] == 1 : # Si on ne veut scanner qu'un seul domaine
+			reponse = input("Quel est le domaine que vous souhaitez scanner ? :")
+			PassingArguments += f"-d {reponse} "
+			OutputDomaine = reponse
+
+		elif argscan[x] == 2 : # Ajout d'un navigateur
+			reponse = input("Quel navigateur souhaitez vous utiliser ?\nExemple : anubis, baidu, bevigil, binaryedge, bing, bingapi, bufferoverun, censys, certspotter, crtsh, dnsdumpster, duckduckgo, fullhunt,\ngithub-code, hackertarget, hunter, intelx,otx, pentesttools, projectdiscovery,qwant, rapiddns, rocketreach, securityTrails,\nsublist3r, threatcrowd, threatminer,urlscan, virustotal, yahoo, zoomeye \nVotre choix : ")
+			PassingArguments += f'-b {reponse} '
+
+		elif argscan[x] == 3 : #Spécification d'un serveur DNS
+			reponse = input("Quel serveur de résolution DNS souhaitez-vous utiliser ?\nExemple : 1.1.1.1 ou 8.8.8.8\nVotre choix : ")
+			PassingArguments += f'-e {reponse} '
+
+		elif argscan[x] == 4 : #Vérification du nom d'hôte via la résolution DNS
+			PassingArguments += "-v "
+
+		elif argscan[x] == 5 : # Nombre de résultats à afficher
+			reponse = input("Quelle est la limite du nombre de résultats que vous souhaitez afficher? :")
+			PassingArguments += f'-l {reponse} '
+
+		elif argscan[x] == 6 : # Création d'un fichier de sortie
+			reponse = input("Quel nom voulez vous donner à votre fichier ? :")
+			PassingArguments += f'-f {reponse} '
+
+		elif argscan[x] == 7 : #Vérification des takeovers
+			PassingArguments += "-r "
+
+		elif argscan[x] == 8 : #Activation de la recherche de serveur DNS
+			PassingArguments += "-n "
+
+		elif argscan[x] == 9 : #Réalisation de force brute
+			PassingArguments += "-c "
+
+		elif argscan[x] == 10 : # Numéro de départ pour les résultats de recherche
+			reponse = input("A quel numéro souhaitez vous reprendre votre recherche ? :")
+			PassingArguments += f'-S {reponse} '
+
+		elif argscan[x] == 11 : # Utilisation de proxies
+			ListeFichiers = []
+			for filename in os.listdir(directory):
+				if filename.endswith('.yaml'):
+					ListeFichiers.append(filename)
+			print(f"Voici la liste des fichiers .yaml trouvés dans {directory}.\nLequel contient votre liste de proxies ?")
+			for x in range(len(ListeFichiers)):
+				print(f"{x+1}. {ListeFichiers[x]}")
+			try:
+				reponse = int(input('Votre choix : '))
+			except:
+				reponse = -1
+
+			while reponse < 1 or reponse > len(ListeFichiers) :
+				try:
+					reponse = int(input(f"Vous n'avez pas choisi un nombre dans l'intervale 1-{len(ListeFichiers)}.\nFaites votre choix : "))
+				except:
+					reponse = -1
+			reponse -= 1
+			PassingArguments += f"-p {directory}/{ListeFichiers[reponse]} "
+   
+			with open(f'{directory}/{ListeFichiers[reponse]}') as f:
+				proxies = f.readline().strip("\n")
+				proxies = f'{proxies} and more'		
 
 	# Ajout du choix pour un affichage dans la console ou dans un fichier
 	choix = None
@@ -267,24 +374,18 @@ Votre choix : """))
 			print("\nVous n'avez pas entré un chiffre entre 1 et 2.\nMerci de réessayer.\n")
 			choix = None
 
-	if choix == 1 :
-		PassingArguments += f"-o \"{directory}/{reponse}/shodan-io-{datetime.datetime.now().strftime('%d%m%y')}.txt\""
+	if choix == 1:
+		PassingArguments += f"-o \"{directory}/{OutputDomaine}/theHarvester.py-{datetime.datetime.now().strftime('%d%m%y')}.txt\""
 
-		subprocess.Popen(f"mkdir \"{reponse}\"", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-		subprocess.Popen(f"python3 shodan/shodan-io.py {PassingArguments}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).communicate()
+		subprocess.Popen(f"mkdir \"{OutputDomaine}\"", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+		subprocess.Popen(f"python3 theharvester/theHarvester.py {PassingArguments}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-		print(f"\nShodan vient de terminer son execution, vous pouvez observer les résultats\nLe fichier est situé dans \"{reponse}/shodan-io-{datetime.datetime.now().strftime('%d%m%y')}.txt\"")
-
+		print("theharvester est en cours d'execution, si vous ne voyez pas de contenu dans le fichier généré, merci de patienter quelques instants.")
+	
 	else :
-		subprocess.Popen(f"python3 shodan/shodan-io.py {PassingArguments}", shell=True).communicate()
+		subprocess.Popen(f"python3 theharvester/theHarvester.py {PassingArguments}", shell=True).communicate()
 
 	return
-
-
-
-
-
-
 
 def programme():
 	ALancer = 0
@@ -294,5 +395,7 @@ def programme():
 			dnscan()
 		elif ALancer == 2 :
 			shodan()
+		elif ALancer == 3 :
+			theharvester()
 
 programme()

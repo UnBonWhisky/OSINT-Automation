@@ -42,4 +42,5 @@ if args.output :
         filename.write(output)
         filename.close()
 print(f"\n{output}")
-        
+
+# https://developer.shodan.io/api : pour ajouter des fonctionnalités en plus 

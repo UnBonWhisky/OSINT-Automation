@@ -88,8 +88,3 @@ Votre choix : """)
 		subprocess.Popen(f"python3 theharvester/theHarvester.py {PassingArguments}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 		print("theharvester est en cours d'execution, si vous ne voyez pas de contenu dans le fichier généré, merci de patienter quelques instants.")
-
-
-
-
-        '''bingapi, bufferoverun, censys, certspotter, crtsh, dnsdumpster, duckduckgo, fullhunt,\ngithub-code, hackertarget, hunter, intelx,otx, pentesttools, projectdiscovery,qwant, rapiddns, rocketreach, securityTrails,\nsublist3r, threatcrowd, threatminer,urlscan, virustotal, yahoo, zoomeye \nVotre choix : ")'''

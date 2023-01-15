@@ -3,7 +3,6 @@
 import os
 import sys
 import subprocess
-import argparse
 
 def theharvester():
 	argscan = []
@@ -26,48 +25,48 @@ Voici les réponses possibles :
 10. Définir un numéro de départ pour les résultats de la recherche
 
 Votre choix : """)
-    
+
 		argscan = argscan.split(',')
 		argscan = STRtoINT(argscan)
-    
+
 	PassingArguments = ""
 	for x in range(len(argscan)):
-     
+		
 		if argscan[x] == 1 : # Si on ne veut scanner qu'un seul domaine
 			reponse = input("Quel est le domaine que vous souhaitez scanner ? :")
 			PassingArguments += f"-d {reponse} "
 			OutputDomaine = reponse
 
-        elif argscan[x] == 2 : # Ajout d'un navigateur
-            reponse = input("Quel navigateur souhaitez vous utiliser ?\nExemple : anubis, baidu, bevigil, binaryedge, bing, bingapi, bufferoverun, censys, certspotter, crtsh, dnsdumpster, duckduckgo, fullhunt,\ngithub-code, hackertarget, hunter, intelx,otx, pentesttools, projectdiscovery,qwant, rapiddns, rocketreach, securityTrails,\nsublist3r, threatcrowd, threatminer,urlscan, virustotal, yahoo, zoomeye \nVotre choix : "))
-            PassingArguments += f'-b {reponse} '
+		elif argscan[x] == 2 : # Ajout d'un navigateur
+			reponse = input("Quel navigateur souhaitez vous utiliser ?\nExemple : anubis, baidu, bevigil, binaryedge, bing, bingapi, bufferoverun, censys, certspotter, crtsh, dnsdumpster, duckduckgo, fullhunt,\ngithub-code, hackertarget, hunter, intelx,otx, pentesttools, projectdiscovery,qwant, rapiddns, rocketreach, securityTrails,\nsublist3r, threatcrowd, threatminer,urlscan, virustotal, yahoo, zoomeye \nVotre choix : ")
+			PassingArguments += f'-b {reponse} '
 
-        elif argscan[x] == 3 : #Spécification d'un serveur DNS
+		elif argscan[x] == 3 : #Spécification d'un serveur DNS
 			reponse = input("Quel serveur de résolution DNS souhaitez-vous utiliser ?\nExemple : 1.1.1.1 ou 8.8.8.8\nVotre choix : ")
-            PassingArguments += f'-e {reponse} '
+			PassingArguments += f'-e {reponse} '
 
 		elif argscan[x] == 4 : #Vérification du nom d'hôte via la résolution DNS
 			PassingArguments += "-v "
 
 		elif argscan[x] == 5 : # Nombre de résultats à afficher
-            reponse = input("Quelle est la limite du nombre de résultats que vous souhaitez afficher? :")
+			reponse = input("Quelle est la limite du nombre de résultats que vous souhaitez afficher? :")
 			PassingArguments += f'-l {reponse} '
 
 		elif argscan[x] == 6 : # Création d'un fichier de sortie
-            reponse = input("Quel nom voulez vous donner à votre fichier ? :")
+			reponse = input("Quel nom voulez vous donner à votre fichier ? :")
 			PassingArguments += f'-f {reponse} '
 
-        elif argscan[x] == 7 : #Vérification des takeovers
+		elif argscan[x] == 7 : #Vérification des takeovers
 			PassingArguments += "-r "
 
-        elif argscan[x] == 8 : #Activation de la recherche de serveur DNS
+		elif argscan[x] == 8 : #Activation de la recherche de serveur DNS
 			PassingArguments += "-n "
 
-        elif argscan[x] == 9 : #Réalisation de force brute
+		elif argscan[x] == 9 : #Réalisation de force brute
 			PassingArguments += "-c "
 
-        elif argscan[x] == 10 : # Numéro de départ pour les résultats de recherche
-            reponse = input("A quel numéro souhaitez vous reprendre votre recherche ? :")
+		elif argscan[x] == 10 : # Numéro de départ pour les résultats de recherche
+			reponse = input("A quel numéro souhaitez vous reprendre votre recherche ? :")
 			PassingArguments += f'-S {reponse} '
 
 	# Ajout du choix pour un affichage dans la console ou dans un fichier

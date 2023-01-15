@@ -5,56 +5,6 @@ import sys
 import subprocess
 import argparse
 
-'''
-def run_theharvester(options):
-    try:
-        subprocess.run(["python3","theHarvester.py"]+ options, check=True)
-        print("[+] Informations collectées avec succès.")
-    except subprocess.CalledProcessError as e:
-        print(f"[-] une erreur est apparue: {e}")
-        return 1
-    except FileNotFoundError as e:
-        print(f"[-] theHarvester n'a pas été trouvé: {e}")
-        return 1
-    except Exception as e:
-        print(f"[-] Une erreur inattendue est apparue: {e}")
-        return 1
-    return 0
-
-def main():
-
-    parser = argparse.ArgumentParser(description='Outil automatisé pour utiliser theHarvester')
-    parser.add_argument('-d', '--domain', help='Domaine à chercher')
-    parser.add_argument('-e', '--email', help='Email à chercher')
-    parser.add_argument('-b', '--browsers', help='navigateurs à utiliser pour la recherche')
-    parser.add_argument('-s', '--source', help='Source à utiliser')
-    parser.add_argument('-l', '--limit', help='Nombre de résultats à afficher')
-    parser.add_argument('-f', '--output', help='nom du fichier créé')
-    parser.add_argument('-v', '--verbose', help='mode verbeux', action='store_true')
-    args = parser.parse_args()
-
-    options = []
-    if args.domain:
-        options += ['-d', args.domain]
-    if args.email:
-        options += ['-e', args.email]
-    if args.browsers:
-        options += ['-b', args.browsers]
-    if args.source:
-        options += ['-s', args.source]
-    if args.limit:
-        options += ['-l', args.limit]
-    if args.output:
-        options += ['-f', args.output]
-    if args.verbose:
-        options += ['-v']
-    return run_theharvester(options)
-
-if __name__ == "__main__":
-    sys.exit(main())
-'''
-
-
 def theharvester():
 	argscan = []
 	while (1 not in argscan) or (1 in argscan):
@@ -66,11 +16,14 @@ Vous devez OBLIGATOIREMENT choisir le nombre 1 pour utiliser ce programme.
 Voici les réponses possibles :
 1. Scanner un domaine
 2. Utiliser un navigateur : data source : baidu, bing, bingapi, dogpile, google, googleCSE, googleplus, google-profiles, linkedin, pgp, twitter, vhost,virustotal, threatcrowd, crtsh, netcraft, yahoo, all
-3. Chercher une adresse email 
-4. utilisation de shodan pour interroger les hôtes découverts
-5. Nombre de résultats à afficher
+3. Utiliser un serveur de résolution DNS différent de celui du système
+4. Vérifier le nom d'hôte via la résolution DNS et rechercher des hôtes virtuels
+5. Nombre de résultats à afficher (par défaut 500)
 6. Création d'un fichier XML et JSON de sortie 
-7. Afficher le mode verbeux
+7. Vérifier si des domaines découverts sont vulnérables à des prises de contrôle
+8. Activer la recherche de serveur DNS
+9. Réaliser une force brute DNS sur le domaine
+10. Définir un numéro de départ pour les résultats de la recherche
 
 Votre choix : """)
     
@@ -85,17 +38,17 @@ Votre choix : """)
 			PassingArguments += f"-d {reponse} "
 			OutputDomaine = reponse
 
-		elif argscan[x] == 2 : # Ajout d'un navigateur
-            reponse = input("Quel navigateur souhaitez vous utiliser ?\nExemple : anubis, baidu, bevigil, binaryedge, bing, bingapi, bufferoverun, censys, certspotter, crtsh,dnsdumpster, duckduckgo, fullhunt,\ngithub-code, hackertarget, hunter, intelx,otx, pentesttools, projectdiscovery,qwant, rapiddns, rocketreach, securityTrails, sublist3r, threatcrowd, threatminer,urlscan, virustotal, yahoo, zoomeye \nVotre choix : ")
+        elif argscan[x] == 2 : # Ajout d'un navigateur
+            reponse = input("Quel navigateur souhaitez vous utiliser ?\nExemple : anubis, baidu, bevigil, binaryedge, bing, bingapi, bufferoverun, censys, certspotter, crtsh, dnsdumpster, duckduckgo, fullhunt,\ngithub-code, hackertarget, hunter, intelx,otx, pentesttools, projectdiscovery,qwant, rapiddns, rocketreach, securityTrails,\nsublist3r, threatcrowd, threatminer,urlscan, virustotal, yahoo, zoomeye \nVotre choix : "))
             PassingArguments += f'-b {reponse} '
-            
-		elif argscan[x] == 3 : # Sélection du mail à chercher
-			reponse = input("Quel est le mail que vous souhaitez chercher ? :")
+
+        elif argscan[x] == 3 : #Spécification d'un serveur DNS
+			reponse = input("Quel serveur de résolution DNS souhaitez-vous utiliser ?\nExemple : 1.1.1.1 ou 8.8.8.8\nVotre choix : ")
             PassingArguments += f'-e {reponse} '
 
-		elif argscan[x] == 4 : # Utilisation de shodan
-			PassingArguments += "-s "
-		
+		elif argscan[x] == 4 : #Vérification du nom d'hôte via la résolution DNS
+			PassingArguments += "-v "
+
 		elif argscan[x] == 5 : # Nombre de résultats à afficher
             reponse = input("Quelle est la limite du nombre de résultats que vous souhaitez afficher? :")
 			PassingArguments += f'-l {reponse} '
@@ -104,4 +57,39 @@ Votre choix : """)
             reponse = input("Quel nom voulez vous donner à votre fichier ? :")
 			PassingArguments += f'-f {reponse} '
 
-		
+        elif argscan[x] == 7 : #Vérification des takeovers
+			PassingArguments += "-r "
+
+        elif argscan[x] == 8 : #Activation de la recherche de serveur DNS
+			PassingArguments += "-n "
+
+        elif argscan[x] == 9 : #Réalisation de force brute
+			PassingArguments += "-c "
+
+        elif argscan[x] == 10 : # Numéro de départ pour les résultats de recherche
+            reponse = input("A quel numéro souhaitez vous reprendre votre recherche ? :")
+			PassingArguments += f'-S {reponse} '
+
+	# Ajout du choix pour un affichage dans la console ou dans un fichier
+	choix = None
+	while choix is None:
+		try:
+			choix = int(input("Souhaitez-vous obtenir le rendu dans la console ou dans un fichier ?\n1. Fichier\n2. Console\nVotre choix : "))
+			if choix not in [1,2] :
+				raise Error
+		except:
+			print("\nVous n'avez pas entré un chiffre entre 1 et 2.\nMerci de réessayer.\n")
+			choix = None
+
+	if choix == 1:
+		PassingArguments += f"-o \"{directory}/{OutputDomaine}/theharvester-{datetime.datetime.now().strftime('%d%m%y')}.txt\""
+
+		subprocess.Popen(f"mkdir \"{OutputDomaine}\"", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+		subprocess.Popen(f"python3 theharvester/theHarvester.py {PassingArguments}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+		print("theharvester est en cours d'execution, si vous ne voyez pas de contenu dans le fichier généré, merci de patienter quelques instants.")
+
+
+
+
+        '''bingapi, bufferoverun, censys, certspotter, crtsh, dnsdumpster, duckduckgo, fullhunt,\ngithub-code, hackertarget, hunter, intelx,otx, pentesttools, projectdiscovery,qwant, rapiddns, rocketreach, securityTrails,\nsublist3r, threatcrowd, threatminer,urlscan, virustotal, yahoo, zoomeye \nVotre choix : ")'''

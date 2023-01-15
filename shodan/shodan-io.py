@@ -1,9 +1,14 @@
 import shodan #chargement de la ibrairie shodan
 import requests
 import argparse
+import json
+
+file = open("data.json", 'r+', encoding="utf-8") # On ouvre le fichier JSON
+data = json.load(file)
+
 
 #Pour que le script puisse utiliser l'API Shodan
-SHODAN_API_KEY = "jegaSstSh2fo9zNqKNHn7puZKoSoakQT"
+SHODAN_API_KEY = data["shodankey"]
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", "--domain", help="nom de domaine")

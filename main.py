@@ -1,6 +1,15 @@
-import os, sys, subprocess, datetime
+import os, sys, subprocess, datetime, requests, json
 directory = os.path.join(os.path.dirname(__file__))
 sys.path.append(directory) # Ajout de l'emplacement du fichier au PATH pour le programme
+
+file = open("data.json", 'r+', encoding="utf-8") # On ouvre le fichier JSON
+data = json.load(file)
+
+def save_auth(key, value): # On sauvegarde les clés d'API
+    data[key] = value
+    file.seek(0)
+    json.dump(data, file, indent=4)
+    file.truncate()
 
 print("""
     +===================================================================+
@@ -56,21 +65,34 @@ def OutputScan(NomProgramme, OutputDomaine, commande, argumentOutput):
 			choix = None
 
 	if choix == 1:
-		commande += f"{argumentOutput} \"output/{OutputDomaine}/{NomProgramme}-{datetime.datetime.now().strftime('%d%m%y')}.txt\""
-		print(commande)
+		if NomProgramme == "urlscan":
+			if os.name == "nt":
+				subprocess.Popen(f"mkdir output\\\"{OutputDomaine}\"", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).communicate()
+			else:
+				subprocess.Popen(f"mkdir -p output/\"{OutputDomaine}\"", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).communicate()
 
-		if os.name == 'nt':
-			subprocess.Popen(f"mkdir output\\\"{OutputDomaine}\"", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-			subprocess.Popen(f"py -3 {commande}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).communicate()
-
+			with open(f"{directory}/output/{OutputDomaine}/{NomProgramme}-{datetime.datetime.now().strftime('%d%m%y')}.txt", 'w', encoding='utf-8') as f :
+				f.write(commande)
+				f.close()
 		else:
-			subprocess.Popen(f"mkdir -p output/\"{OutputDomaine}\"", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-			subprocess.Popen(f"python3 {commande}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).communicate()
+			commande += f"{argumentOutput} \"output/{OutputDomaine}/{NomProgramme}-{datetime.datetime.now().strftime('%d%m%y')}.txt\""
+			print(commande)
+
+			if os.name == 'nt':
+				subprocess.Popen(f"mkdir output\\\"{OutputDomaine}\"", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).communicate()
+				subprocess.Popen(f"py -3 {commande}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).communicate()
+
+			else:
+				subprocess.Popen(f"mkdir -p output/\"{OutputDomaine}\"", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).communicate()
+				subprocess.Popen(f"python3 {commande}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).communicate()
 
 		print(f"\n{NomProgramme} vient de terminer son execution, vous pouvez observer les résultats\nLe fichier est situé dans output/{OutputDomaine}/dnscan-{datetime.datetime.now().strftime('%d%m%y')}.txt\"")
 
 	else :
-		subprocess.Popen(f"python3 {commande}", shell=True).communicate()
+		if NomProgramme == "urlscan":
+			print(f"\nL'URL de votre résultat est disponible ici :\n{commande}")
+		else:
+			subprocess.Popen(f"python3 {commande}", shell=True).communicate()
 
 	return
 
@@ -232,6 +254,16 @@ Votre choix : """)
 
 
 def shodan():
+	# Import de la clé d'API de l'utilisateur pour faire fonctionner Shodan
+	if data["shodankey"] is None :
+		cle = input("""
+Merci d'entrer votre clé d'API pour faire fonctionner shodan.
+Attention, vous ne pourrez pas la modifier en cas de non fonctionnement de celle-ci.
+Vous devrez refaire l'entièreté du container (si Docker), ou modifier le fichier en lignes de commandes. (le fichier est data.json)
+Votre clé : """)
+
+		save_auth("shodankey", cle)
+ 
 	choix = None
 	while choix is None :
 		try: 
@@ -327,7 +359,7 @@ Votre choix : """)
 			PassingArguments += "-v "
 
 		elif argscan[x] == 4 : # Nombre de résultats à afficher
-			reponse = input("Quelle est la limite du nombre de résultats que vous souhaitez afficher ? (500 par défaut)\nVotre choix :")
+			reponse = input("Quelle est la limite du nombre de résultats que vous souhaitez afficher ? (500 par défaut)\nVotre choix : ")
 			PassingArguments += f'-l {reponse} '
 
 		elif argscan[x] == 5 : #Vérification des takeovers
@@ -340,7 +372,7 @@ Votre choix : """)
 			PassingArguments += "-c "
 
 		elif argscan[x] == 8 : # Numéro de départ pour les résultats de recherche
-			reponse = input("A quel numéro souhaitez vous reprendre votre recherche ?\nVotre choix :")
+			reponse = input("A quel numéro souhaitez vous reprendre votre recherche ?\nVotre choix : ")
 			PassingArguments += f'-S {reponse} '
 
 		elif argscan[x] == 9 : # Utilisation de proxies
@@ -350,6 +382,30 @@ Votre choix : """)
 	OutputScan("theHarvester", OutputDomaine, f"theharvester/theHarvester.py {PassingArguments}", "-f")
 
 	return
+
+def urlscan():
+	# Récupération de la clé d'API urlscan
+	if data["urlscankey"] is None :
+		cle = input("""
+Merci d'entrer votre clé d'API pour faire fonctionner URLScan.
+Attention, vous ne pourrez pas la modifier en cas de non fonctionnement de celle-ci.
+Vous devrez refaire l'entièreté du container (si Docker), ou modifier le fichier en lignes de commandes. (le fichier est data.json)
+Votre clé : """)
+		save_auth("urlscankey", cle)
+
+		data["urlscankey"] = cle
+
+	headers = {'API-Key': data["urlscankey"], 'Content-Type':'application/json'}
+
+	url = input("Entrez l'URL à scanner : ")
+	data = {"url": url, "visibility": "public"}
+
+	response = requests.post('https://urlscan.io/api/v1/scan/',headers=headers, data=json.dumps(data))
+
+	if response.status_code != 200:
+		print("La clé d'API ou le lien scanné est incorrect.")
+	else:
+		OutputScan("urlscan", url, response.json()['result'], None)
 
 def GoogleDorks():
 	argscan = []
@@ -438,6 +494,8 @@ def programme():
 			shodan()
 		elif ALancer == 3 :
 			theharvester()
+		elif ALancer == 4 :
+			urlscan()
 		elif ALancer == 5 :
 			GoogleDorks()
 

@@ -22,8 +22,12 @@ class Core:
                 with open('/usr/local/etc/theHarvester/api-keys.yaml', 'r') as api_keys:
                     keys = yaml.safe_load(api_keys)
             except FileNotFoundError:
-                with open('api-keys.yaml', 'r') as api_keys:
-                    keys = yaml.safe_load(api_keys)
+                try:
+                    with open('api-keys.yaml', 'r') as api_keys:
+                        keys = yaml.safe_load(api_keys)
+                except FileNotFoundError:
+                    with open('./theharvester/api-keys.yaml', 'r') as api_keys:
+                        keys = yaml.safe_load(api_keys)
         return keys['apikeys']
 
     @staticmethod
@@ -100,8 +104,12 @@ class Core:
                 with open('/usr/local/etc/theHarvester/proxies.yaml', 'r') as proxy_file:
                     keys = yaml.safe_load(proxy_file)
             except FileNotFoundError:
-                with open('proxies.yaml', 'r') as proxy_file:
-                    keys = yaml.safe_load(proxy_file)
+                try:
+                    with open('proxies.yaml', 'r') as proxy_file:
+                        keys = yaml.safe_load(proxy_file)
+                except FileNotFoundError:
+                    with open('./theharvester/proxies.yaml', 'r') as proxy_file :
+                        keys = yaml.safe_load(proxy_file)
         http_list = [f'http://{proxy}' for proxy in keys['http']] if keys['http'] is not None else []
         return http_list
 

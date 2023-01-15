@@ -101,7 +101,8 @@ Voici les réponses possibles :
 Votre choix : """)
     
 		argscan = argscan.split(',')
-		argscan = STRtoINT(argscan)
+		if len(argscan) > 0 and argscan[0] != '' :
+			argscan = STRtoINT(argscan)
     
 	PassingArguments = ""
 	for x in range(len(argscan)):
@@ -291,7 +292,7 @@ Voici les réponses possibles :
 Votre choix : """)
 
 	argscan = argscan.split(',')
-	if len(argscan) > 0 :
+	if len(argscan) > 0 and argscan[0] != '' :
 		argscan = STRtoINT(argscan)
 
 	PassingArguments = ""
@@ -350,6 +351,82 @@ Votre choix : """)
 
 	return
 
+def GoogleDorks():
+	argscan = []
+	argscan = input("""
+Quels arguments souhaitez-vous entrer dans votre commande ?
+Entrez votre réponse comme ceci si vous souhaitez entrer plusieurs arguments : 1,3,8
+
+Voici les réponses possibles :
+1. Spécifier un nom de domaine pour définir la recherche Google dork
+2. Le délai minimum entre les recherches de dork, en secondes. Doit être supérieur à 0 (par défaut 37)
+3. Le délai maximum entre les recherches dorks, en secondes. Doit être supérieur à 0 (par défaut 60)
+4. Désactiver la validation SSL/TLS. Parfois nécessaire si vous utilisez un proxy HTTPS avec des certificats auto-signés
+5. Le nombre maximum de résultat de recherche url à retourner par dork, doit être supérieur à 0 (par défaut 100)
+6. Une chaîne de proxy séparées par des virgules. Exemple :  https://myproxy:8080,socks5h://127.0.0.1:9050,socks5h://127.0.0.1:9051
+Votre choix : """)
+
+	argscan = argscan.split(',')
+	if len(argscan) > 0 and argscan[0] != '' :
+		argscan = STRtoINT(argscan)
+    
+	PassingArguments = ""
+
+	# Passage d'un google dorks (obligatoire)
+	ListeFichiers = []
+	reponse = print("Voici les différents Google Dorks qui sont disponibles :")
+	for filename in os.listdir(f"{directory}/google-dorks/dorks"):
+		if filename.endswith('.txt') or filename.endswith('.dorks'):
+			ListeFichiers.append(filename)
+
+	for x in range(len(ListeFichiers)):
+		print(f"{x+1}. {ListeFichiers[x]}")
+
+	reponse = None
+	while reponse is None :
+		try:
+			reponse = int(input("Quel fichier souhaitez-vous utiliser ?\nVotre choix : "))
+			if reponse < 1 or reponse > len(ListeFichiers) :
+				raise Exception
+		except:
+			print(f"Vous n'avez pas entré un nombre entre 1 et {ListeFichiers}\n")
+			reponse = None
+
+	PassingArguments += f"-g {directory}/google-dorks/dorks/{ListeFichiers[reponse-1]} "
+
+	if 1 not in argscan :
+		OutputDomaine = "google-dorks.result"
+
+	for x in range(len(argscan)):
+
+		if argscan[x] == 1 : # Pour spécifier un nom de domain afin de définir la recherche google dork
+			reponse = input("Quel est le nom de domaine que vous souhaitez spécifier : ")
+			PassingArguments += f"-d {reponse} "
+			OutputDomaine = reponse
+		
+		elif argscan[x] == 2 : # Pour définir un délai minimum entre les recherches
+			reponse = input("Quel est le délai minimum que vous voulez avoir (en secondes) : ")
+			PassingArguments += f"-i {reponse} "
+		
+		elif argscan[x] == 3 : # Pour définir un délai maximum entre les recherches
+			reponse = input("Quel est le délai maximum que vous voulez avoir (en secondes) : ")
+			PassingArguments += f"-x {reponse} "
+		
+		elif argscan[x] == 4 : # Pour désactiver la validation SSL/TLS
+			PassingArguments += "-l "
+		
+		elif argscan[x] == 5 : # Pour définir un nombre maximum de résultats de recherche url effectuer par dork
+			reponse = input("Quel est le nombre de résultats attendus (doit être supérieur à 0) : ")
+			PassingArguments += f"-m {reponse} "
+		
+		elif argscan[x] == 6 : # Pour définir une chaine de plusieurs prxy à la fois
+			reponse = input("Quels sont les proxy que vous voulez utiliser (lien url): ")
+			PassingArguments += f"-p {reponse} "
+
+	# Ajout du choix pour un affichage dans la console ou dans un fichier
+	OutputScan("google-dorks", OutputDomaine, f"google-dorks/pagodo.py {PassingArguments}", '-s')
+
+	return
 
 def programme():
 	ALancer = 0
@@ -361,5 +438,7 @@ def programme():
 			shodan()
 		elif ALancer == 3 :
 			theharvester()
+		elif ALancer == 5 :
+			GoogleDorks()
 
 programme()

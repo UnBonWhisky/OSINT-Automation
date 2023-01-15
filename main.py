@@ -56,7 +56,7 @@ def OutputScan(NomProgramme, OutputDomaine, commande, argumentOutput):
 			choix = None
 
 	if choix == 1:
-		commande += f"{argumentOutput} \"{directory}/output/{OutputDomaine}/{NomProgramme}-{datetime.datetime.now().strftime('%d%m%y')}.txt\""
+		commande += f"{argumentOutput} \"output/{OutputDomaine}/{NomProgramme}-{datetime.datetime.now().strftime('%d%m%y')}.txt\""
 		print(commande)
 
 		if os.name == 'nt':

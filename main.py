@@ -32,7 +32,7 @@ def start():
 		try:
 			choix = int(input("\nQuel programme souhaitez-vous lancer ?\n1. DNSCan\n2. Shodan\n3. theHarvester\n4. URLScan.io\n5. Google-Dorks\n6. Quitter\nVotre choix : "))
 			if choix < 1 or choix > 6 :
-				raise Error
+				raise Exception
 		except:
 			print("\nVous n'avez pas entré un chiffre entre 1 et 6.\nMerci de réessayer.\n")
 			choix = None
@@ -42,6 +42,36 @@ def STRtoINT(argument):
 	for x in range(len(argument)) :
 		argument[x] = int(argument[x])
 	return argument
+
+def OutputScan(NomProgramme, OutputDomaine, commande):
+    # Ajout du choix pour un affichage dans la console ou dans un fichier
+	choix = None
+	while choix is None:
+		try:
+			choix = int(input("Souhaitez-vous obtenir le rendu dans la console ou dans un fichier ?\n1. Fichier\n2. Console\nVotre choix : "))
+			if choix not in [1,2] :
+				raise Exception
+		except:
+			print("\nVous n'avez pas entré un chiffre entre 1 et 2.\nMerci de réessayer.\n")
+			choix = None
+
+	if choix == 1:
+		commande += f"-o \"{directory}/output/{OutputDomaine}/{NomProgramme}-{datetime.datetime.now().strftime('%d%m%y')}.txt\""
+
+		if os.name == 'nt':
+			subprocess.Popen(f"mkdir output\\\"{OutputDomaine}\"", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+			subprocess.Popen(f"python3 {commande}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).communicate()
+
+		else:
+			subprocess.Popen(f"mkdir -p output/\"{OutputDomaine}\"", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+			subprocess.Popen(f"python3 {commande}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).communicate()
+
+		print(f"\n{NomProgramme} vient de terminer son execution, vous pouvez observer les résultats\nLe fichier est situé dans output/\"{OutputDomaine}/dnscan-{datetime.datetime.now().strftime('%d%m%y')}.txt\"")
+
+	else :
+		subprocess.Popen(f"python3 {commande}", shell=True).communicate()
+
+	return
 
 def dnscan():
 	argscan = []
@@ -136,7 +166,7 @@ Votre choix : """)
 				try:
 					reponse = int(input("Combien de threads souhaitez-vous utiliser à la fois ? (1-32, 8 par défaut)\nVotre choix : "))
 					if reponse < 1 or reponse > 32 :
-						raise Error
+						raise Exception
 				except:
 					print("\nVous n'avez pas entré un chiffre entre 1 et 32.\nMerci de réessayer.\n")
 					reponse = None
@@ -195,26 +225,7 @@ Votre choix : """)
 			PassingArguments += '-v '
 
 	# Ajout du choix pour un affichage dans la console ou dans un fichier
-	choix = None
-	while choix is None:
-		try:
-			choix = int(input("Souhaitez-vous obtenir le rendu dans la console ou dans un fichier ?\n1. Fichier\n2. Console\nVotre choix : "))
-			if choix not in [1,2] :
-				raise Error
-		except:
-			print("\nVous n'avez pas entré un chiffre entre 1 et 2.\nMerci de réessayer.\n")
-			choix = None
-
-	if choix == 1:
-		PassingArguments += f"-o \"{directory}/{OutputDomaine}/dnscan-{datetime.datetime.now().strftime('%d%m%y')}.txt\""
-
-		subprocess.Popen(f"mkdir \"{OutputDomaine}\"", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-		subprocess.Popen(f"python3 dnscan/dnscan.py {PassingArguments}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).communicate()
-
-		print(f"\nDNSCan vient de terminer son execution, vous pouvez observer les résultats\nLe fichier est situé dans \"{OutputDomaine}/dnscan-{datetime.datetime.now().strftime('%d%m%y')}.txt\"")
-
-	else :
-		subprocess.Popen(f"python3 dnscan/dnscan.py {PassingArguments}", shell=True).communicate()
+	OutputScan("DNSCan", OutputDomaine, f"dnscan/dnscan.py {PassingArguments}")
 
 	return
 
@@ -230,7 +241,7 @@ Veuillez taper :
 2. Avoir des informations sur un nom de domaine
 Votre choix : """))
 			if choix not in [1,2]:
-				raise Error
+				raise Exception
 		except :
 			print("Vous n'avez pas entré un nombre dans l'intervale 1-2")
 			choix = None
@@ -246,7 +257,7 @@ Votre choix : """))
 					IPreponse[x] = int(IPreponse[x])
 
 				if len(IPreponse) != 4:
-					raise Error
+					raise Exception
 			except:
 				print("Vous n'avez pas rentré une adresse IPv4 correcte.")
 				reponse = None
@@ -257,33 +268,9 @@ Votre choix : """))
 		PassingArguments += f"-d {reponse} "
 
 	# Ajout du choix pour un affichage dans la console ou dans un fichier
-	choix = None
-	while choix is None:
-		try:
-			choix = int(input("Souhaitez-vous obtenir le rendu dans la console ou dans un fichier ?\n1. Fichier\n2. Console\nVotre choix : "))
-			if choix not in [1,2] :
-				raise Error
-		except:
-			print("\nVous n'avez pas entré un chiffre entre 1 et 2.\nMerci de réessayer.\n")
-			choix = None
-
-	if choix == 1 :
-		PassingArguments += f"-o \"{directory}/{reponse}/shodan-io-{datetime.datetime.now().strftime('%d%m%y')}.txt\""
-
-		subprocess.Popen(f"mkdir \"{reponse}\"", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-		subprocess.Popen(f"python3 shodan/shodan-io.py {PassingArguments}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).communicate()
-
-		print(f"\nShodan vient de terminer son execution, vous pouvez observer les résultats\nLe fichier est situé dans \"{reponse}/shodan-io-{datetime.datetime.now().strftime('%d%m%y')}.txt\"")
-
-	else :
-		subprocess.Popen(f"python3 shodan/shodan-io.py {PassingArguments}", shell=True).communicate()
+	OutputScan("Shodan", reponse, f"shodan/shodan-io.py {PassingArguments}")
 
 	return
-
-
-
-
-
 
 
 def programme():

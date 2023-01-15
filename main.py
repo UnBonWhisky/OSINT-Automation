@@ -43,7 +43,7 @@ def STRtoINT(argument):
 		argument[x] = int(argument[x])
 	return argument
 
-def OutputScan(NomProgramme, OutputDomaine, commande):
+def OutputScan(NomProgramme, OutputDomaine, commande, argumentOutput):
     # Ajout du choix pour un affichage dans la console ou dans un fichier
 	choix = None
 	while choix is None:
@@ -56,17 +56,18 @@ def OutputScan(NomProgramme, OutputDomaine, commande):
 			choix = None
 
 	if choix == 1:
-		commande += f"-o \"{directory}/output/{OutputDomaine}/{NomProgramme}-{datetime.datetime.now().strftime('%d%m%y')}.txt\""
+		commande += f"{argumentOutput} \"{directory}/output/{OutputDomaine}/{NomProgramme}-{datetime.datetime.now().strftime('%d%m%y')}.txt\""
+		print(commande)
 
 		if os.name == 'nt':
 			subprocess.Popen(f"mkdir output\\\"{OutputDomaine}\"", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-			subprocess.Popen(f"python3 {commande}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).communicate()
+			subprocess.Popen(f"py -3 {commande}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).communicate()
 
 		else:
 			subprocess.Popen(f"mkdir -p output/\"{OutputDomaine}\"", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 			subprocess.Popen(f"python3 {commande}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).communicate()
 
-		print(f"\n{NomProgramme} vient de terminer son execution, vous pouvez observer les résultats\nLe fichier est situé dans output/\"{OutputDomaine}/dnscan-{datetime.datetime.now().strftime('%d%m%y')}.txt\"")
+		print(f"\n{NomProgramme} vient de terminer son execution, vous pouvez observer les résultats\nLe fichier est situé dans output/{OutputDomaine}/dnscan-{datetime.datetime.now().strftime('%d%m%y')}.txt\"")
 
 	else :
 		subprocess.Popen(f"python3 {commande}", shell=True).communicate()
@@ -97,7 +98,6 @@ Voici les réponses possibles :
 13. Ne scanner que les zones de transfert et les sous-domaines
 14. Ne pas afficher les adresses IP dans le rendu
 15. Afficher le mode verbeux
-
 Votre choix : """)
     
 		argscan = argscan.split(',')
@@ -225,7 +225,7 @@ Votre choix : """)
 			PassingArguments += '-v '
 
 	# Ajout du choix pour un affichage dans la console ou dans un fichier
-	OutputScan("DNSCan", OutputDomaine, f"dnscan/dnscan.py {PassingArguments}")
+	OutputScan("DNSCan", OutputDomaine, f"dnscan/dnscan.py {PassingArguments}", '-o')
 
 	return
 
@@ -268,122 +268,85 @@ Votre choix : """))
 		PassingArguments += f"-d {reponse} "
 
 	# Ajout du choix pour un affichage dans la console ou dans un fichier
-	OutputScan("Shodan", reponse, f"shodan/shodan-io.py {PassingArguments}")
+	OutputScan("Shodan", reponse, f"shodan/shodan-io.py {PassingArguments}", '-o')
 
 	return
 
 def theharvester():
 	argscan = []
-	while (1 not in argscan) :
-		argscan = input("""
+	argscan = input(f"""
 Quels arguments souhaitez-vous entrer dans votre commande ?
 Entrez votre réponse comme ceci si vous souhaitez entrer plusieurs arguments : 1,3,8
-Vous devez OBLIGATOIREMENT choisir le nombre 1 pour utiliser ce programme.
 
 Voici les réponses possibles :
-1. Scanner un domaine
-2. Utiliser un navigateur : data source : baidu, bing, bingapi, dogpile, google, googleCSE, googleplus, google-profiles, linkedin, pgp, twitter, vhost,virustotal, threatcrowd, crtsh, netcraft, yahoo, all
-3. Utiliser un serveur de résolution DNS différent de celui du système
-4. Vérifier le nom d'hôte via la résolution DNS et rechercher des hôtes virtuels
-5. Nombre de résultats à afficher (par défaut 500)
-6. Création d'un fichier XML et JSON de sortie 
-7. Vérifier si des domaines découverts sont vulnérables à des prises de contrôle
-8. Activer la recherche de serveur DNS
-9. Réaliser une force brute DNS sur le domaine
-10. Définir un numéro de départ pour les résultats de la recherche
-11. Utiliser des proxies pour les requêtes effectués
-
+1. Choix du navigateur (certains navigateurs nécessitent une clé d'API à entrer dans le fichier suivant : {directory}/theHarvester/api-keys.yaml )
+2. Utiliser un serveur de résolution DNS différent de celui du système
+3. Vérifier le nom d'hôte via la résolution DNS et rechercher des hôtes virtuels
+4. Nombre de résultats à afficher (par défaut 500)
+5. Vérifier si des domaines découverts sont vulnérables à des prises de contrôle
+6. Activer la recherche de serveur DNS
+7. Réaliser une force brute DNS sur le domaine
+8. Définir un numéro de départ pour les résultats de la recherche
+9. Utiliser des proxies pour les requêtes effectuées (Ajoutez un fichier proxies.yaml à la racine du dossier ou utiliser celui dans le dossier theharvester)
 Votre choix : """)
 
-		argscan = argscan.split(',')
+	argscan = argscan.split(',')
+	if len(argscan) > 0 :
 		argscan = STRtoINT(argscan)
 
 	PassingArguments = ""
-	for x in range(len(argscan)):
-		
-		if argscan[x] == 1 : # Si on ne veut scanner qu'un seul domaine
-			reponse = input("Quel est le domaine que vous souhaitez scanner ? :")
-			PassingArguments += f"-d {reponse} "
-			OutputDomaine = reponse
+	reponse = input("Quel est le domaine que vous souhaitez scanner ? : ") # Obligatoirement ajout d'un domaine
+	PassingArguments += f"-d {reponse} "
+	OutputDomaine = reponse
 
-		elif argscan[x] == 2 : # Ajout d'un navigateur
-			reponse = input("Quel navigateur souhaitez vous utiliser ?\nExemple : anubis, baidu, bevigil, binaryedge, bing, bingapi, bufferoverun, censys, certspotter, crtsh, dnsdumpster, duckduckgo, fullhunt,\ngithub-code, hackertarget, hunter, intelx,otx, pentesttools, projectdiscovery,qwant, rapiddns, rocketreach, securityTrails,\nsublist3r, threatcrowd, threatminer,urlscan, virustotal, yahoo, zoomeye \nVotre choix : ")
+	for x in range(len(argscan)):
+		if argscan[x] == 1 : # Ajout d'un navigateur
+			Navigateurs = ["all", "anubis", "baidu", "bevigil\t\t(Nécessite une clé d'API)", "binaryedge\t\t(Nécessite une clé d'API)", "bing", "bingapi\t\t(Nécessite une clé d'API)", "bufferoverun\t\t(Nécessite une clé d'API)", "censys\t\t(Nécessite une clé d'API)", "certspotter", "crtsh", "dnsdumpster", "duckduckgo", "fullhunt\t\t(Nécessite une clé d'API)","github-code\t\t(Nécessite une clé d'API)", "hackertarget", "hunter\t\t(Nécessite une clé d'API)", "intelx\t\t(Nécessite une clé d'API)", "otx", "pentesttools\t(Nécessite une clé d'API)", "projectdiscovery\t(Nécessite une clé d'API)", "qwant", "rapiddns", "rocketreach\t\t(Nécessite une clé d'API)", "securityTrails\t(Nécessite une clé d'API)", "sublist3r", "threatcrowd", "threatminer", "urlscan", "virustotal\t\t(Nécessite une clé d'API)", "yahoo", "zoomeye\t\t(Nécessite une clé d'API)"]
+			print("Quel navigateur souhaitez vous utiliser ?")
+			for x in range(len(Navigateurs)):
+				print(f"{x+1}. {Navigateurs[x]}")
+			reponse = None
+			while reponse is None:
+				try:
+					reponse = int(input("Votre choix : "))
+					if reponse < 1 or reponse > len(Navigateurs) :
+						raise Exception
+				except :
+					print(f"Ce nombre n'est pas dans la liste, choisissez un nombre dans l'intervale 1-{len(Navigateurs)}")
+					reponse = None
+			reponse = Navigateurs[reponse-1]
+			reponse = reponse.split('\t')[0]
 			PassingArguments += f'-b {reponse} '
 
-		elif argscan[x] == 3 : #Spécification d'un serveur DNS
+		elif argscan[x] == 2 : #Spécification d'un serveur DNS
 			reponse = input("Quel serveur de résolution DNS souhaitez-vous utiliser ?\nExemple : 1.1.1.1 ou 8.8.8.8\nVotre choix : ")
 			PassingArguments += f'-e {reponse} '
 
-		elif argscan[x] == 4 : #Vérification du nom d'hôte via la résolution DNS
+		elif argscan[x] == 3 : #Vérification du nom d'hôte via la résolution DNS
 			PassingArguments += "-v "
 
-		elif argscan[x] == 5 : # Nombre de résultats à afficher
-			reponse = input("Quelle est la limite du nombre de résultats que vous souhaitez afficher? :")
+		elif argscan[x] == 4 : # Nombre de résultats à afficher
+			reponse = input("Quelle est la limite du nombre de résultats que vous souhaitez afficher ? (500 par défaut)\nVotre choix :")
 			PassingArguments += f'-l {reponse} '
 
-		elif argscan[x] == 6 : # Création d'un fichier de sortie
-			reponse = input("Quel nom voulez vous donner à votre fichier ? :")
-			PassingArguments += f'-f {reponse} '
-
-		elif argscan[x] == 7 : #Vérification des takeovers
+		elif argscan[x] == 5 : #Vérification des takeovers
 			PassingArguments += "-r "
 
-		elif argscan[x] == 8 : #Activation de la recherche de serveur DNS
+		elif argscan[x] == 6 : #Activation de la recherche de serveur DNS
 			PassingArguments += "-n "
 
-		elif argscan[x] == 9 : #Réalisation de force brute
+		elif argscan[x] == 7 : #Réalisation de force brute
 			PassingArguments += "-c "
 
-		elif argscan[x] == 10 : # Numéro de départ pour les résultats de recherche
-			reponse = input("A quel numéro souhaitez vous reprendre votre recherche ? :")
+		elif argscan[x] == 8 : # Numéro de départ pour les résultats de recherche
+			reponse = input("A quel numéro souhaitez vous reprendre votre recherche ?\nVotre choix :")
 			PassingArguments += f'-S {reponse} '
 
-		elif argscan[x] == 11 : # Utilisation de proxies
-			ListeFichiers = []
-			for filename in os.listdir(directory):
-				if filename.endswith('.yaml'):
-					ListeFichiers.append(filename)
-			print(f"Voici la liste des fichiers .yaml trouvés dans {directory}.\nLequel contient votre liste de proxies ?")
-			for x in range(len(ListeFichiers)):
-				print(f"{x+1}. {ListeFichiers[x]}")
-			try:
-				reponse = int(input('Votre choix : '))
-			except:
-				reponse = -1
-
-			while reponse < 1 or reponse > len(ListeFichiers) :
-				try:
-					reponse = int(input(f"Vous n'avez pas choisi un nombre dans l'intervale 1-{len(ListeFichiers)}.\nFaites votre choix : "))
-				except:
-					reponse = -1
-			reponse -= 1
-			PassingArguments += f"-p {directory}/{ListeFichiers[reponse]} "
-   
-			with open(f'{directory}/{ListeFichiers[reponse]}') as f:
-				proxies = f.readline().strip("\n")
-				proxies = f'{proxies} and more'		
+		elif argscan[x] == 9 : # Utilisation de proxies
+			PassingArguments += "-p "
 
 	# Ajout du choix pour un affichage dans la console ou dans un fichier
-	choix = None
-	while choix is None:
-		try:
-			choix = int(input("Souhaitez-vous obtenir le rendu dans la console ou dans un fichier ?\n1. Fichier\n2. Console\nVotre choix : "))
-			if choix not in [1,2] :
-				raise Error
-		except:
-			print("\nVous n'avez pas entré un chiffre entre 1 et 2.\nMerci de réessayer.\n")
-			choix = None
-
-	if choix == 1:
-		PassingArguments += f"-o \"{directory}/{OutputDomaine}/theHarvester.py-{datetime.datetime.now().strftime('%d%m%y')}.txt\""
-
-		subprocess.Popen(f"mkdir \"{OutputDomaine}\"", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-		subprocess.Popen(f"python3 theharvester/theHarvester.py {PassingArguments}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
-		print("theharvester est en cours d'execution, si vous ne voyez pas de contenu dans le fichier généré, merci de patienter quelques instants.")
-	
-	else :
-		subprocess.Popen(f"python3 theharvester/theHarvester.py {PassingArguments}", shell=True).communicate()
+	OutputScan("theHarvester", OutputDomaine, f"theharvester/theHarvester.py {PassingArguments}", "-f")
 
 	return
 

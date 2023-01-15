@@ -387,6 +387,7 @@ Votre choix : """)
 
 	return
 
+
 def programme():
 	ALancer = 0
 	while ALancer != 6 :

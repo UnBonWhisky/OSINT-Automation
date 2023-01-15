@@ -4,9 +4,14 @@ import os
 import sys
 import subprocess
 
+def STRtoINT(argument):
+	for x in range(len(argument)) :
+		argument[x] = int(argument[x])
+	return argument
+
 def theharvester():
 	argscan = []
-	while (1 not in argscan) or (1 in argscan):
+	while (1 not in argscan) :
 		argscan = input("""
 Quels arguments souhaitez-vous entrer dans votre commande ?
 Entrez votre réponse comme ceci si vous souhaitez entrer plusieurs arguments : 1,3,8
@@ -84,6 +89,13 @@ Votre choix : """)
 		PassingArguments += f"-o \"{directory}/{OutputDomaine}/theharvester-{datetime.datetime.now().strftime('%d%m%y')}.txt\""
 
 		subprocess.Popen(f"mkdir \"{OutputDomaine}\"", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-		subprocess.Popen(f"python3 theharvester/theHarvester.py {PassingArguments}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+		subprocess.Popen(f"python3 theHarvester.py {PassingArguments}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 		print("theharvester est en cours d'execution, si vous ne voyez pas de contenu dans le fichier généré, merci de patienter quelques instants.")
+	
+	else :
+		subprocess.Popen(f"python3 theHarvester.py {PassingArguments}", shell=True).communicate()
+
+	return
+
+theharvester()

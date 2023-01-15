@@ -398,9 +398,9 @@ Votre clé : """)
 	headers = {'API-Key': data["urlscankey"], 'Content-Type':'application/json'}
 
 	url = input("Entrez l'URL à scanner : ")
-	data = {"url": url, "visibility": "public"}
+	jsondata = {"url": url, "visibility": "public"}
 
-	response = requests.post('https://urlscan.io/api/v1/scan/',headers=headers, data=json.dumps(data))
+	response = requests.post('https://urlscan.io/api/v1/scan/',headers=headers, data=json.dumps(jsondata))
 
 	if response.status_code != 200:
 		print("La clé d'API ou le lien scanné est incorrect.")

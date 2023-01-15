@@ -28,6 +28,7 @@ Voici les réponses possibles :
 8. Activer la recherche de serveur DNS
 9. Réaliser une force brute DNS sur le domaine
 10. Définir un numéro de départ pour les résultats de la recherche
+11. Utiliser des proxies pour les requêtes effectués
 
 Votre choix : """)
 
@@ -74,6 +75,31 @@ Votre choix : """)
 			reponse = input("A quel numéro souhaitez vous reprendre votre recherche ? :")
 			PassingArguments += f'-S {reponse} '
 
+		elif argscan[x] == 11 : # Utilisation de proxies
+			ListeFichiers = []
+			for filename in os.listdir(directory):
+				if filename.endswith('.yaml'):
+					ListeFichiers.append(filename)
+			print(f"Voici la liste des fichiers .yaml trouvés dans {directory}.\nLequel contient votre liste de proxies ?")
+			for x in range(len(ListeFichiers)):
+				print(f"{x+1}. {ListeFichiers[x]}")
+			try:
+				reponse = int(input('Votre choix : '))
+			except:
+				reponse = -1
+
+			while reponse < 1 or reponse > len(ListeFichiers) :
+				try:
+					reponse = int(input(f"Vous n'avez pas choisi un nombre dans l'intervale 1-{len(ListeFichiers)}.\nFaites votre choix : "))
+				except:
+					reponse = -1
+			reponse -= 1
+			PassingArguments += f"-p {directory}/{ListeFichiers[reponse]} "
+   
+			with open(f'{directory}/{ListeFichiers[reponse]}') as f:
+				proxies = f.readline().strip("\n")
+				proxies = f'{proxies} and more'		
+
 	# Ajout du choix pour un affichage dans la console ou dans un fichier
 	choix = None
 	while choix is None:
@@ -86,9 +112,9 @@ Votre choix : """)
 			choix = None
 
 	if choix == 1:
-		PassingArguments += f"-o \"{directory}/{OutputDomaine}/theharvester-{datetime.datetime.now().strftime('%d%m%y')}.txt\""
+		PassingArguments += f"-o \"{directory}/{proxies}/theharvester-{datetime.datetime.now().strftime('%d%m%y')}.yaml\""
 
-		subprocess.Popen(f"mkdir \"{OutputDomaine}\"", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+		subprocess.Popen(f"mkdir \"{proxies}\"", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 		subprocess.Popen(f"python3 theHarvester.py {PassingArguments}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 		print("theharvester est en cours d'execution, si vous ne voyez pas de contenu dans le fichier généré, merci de patienter quelques instants.")

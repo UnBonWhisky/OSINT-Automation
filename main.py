@@ -1,4 +1,4 @@
-import os, sys, subprocess, datetime, requests, json
+import os, sys, subprocess, datetime, requests, json, colorama
 directory = os.path.join(os.path.dirname(__file__))
 sys.path.append(directory) # Ajout de l'emplacement du fichier au PATH pour le programme
 
@@ -486,6 +486,7 @@ Votre choix : """)
 def programme():
 	ALancer = 0
 	while ALancer != 6 :
+		print(colorama.Style.RESET_ALL + colorama.Fore.RESET + colorama.Back.RESET, end="")
 		ALancer = start()
 		if ALancer == 1 :
 			dnscan()

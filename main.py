@@ -71,12 +71,11 @@ def OutputScan(NomProgramme, OutputDomaine, commande, argumentOutput):
 			else:
 				subprocess.Popen(f"mkdir -p output/\"{OutputDomaine}\"", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).communicate()
 
-			with open(f"{directory}/output/{OutputDomaine}/{NomProgramme}-{datetime.datetime.now().strftime('%d%m%y')}.txt", 'w', encoding='utf-8') as f :
+			with open(f"{directory}/output/{OutputDomaine}/{NomProgramme}-{datetime.datetime.now().strftime('%d%m%y')}.txt", 'w+', encoding='utf-8') as f :
 				f.write(commande)
 				f.close()
 		else:
 			commande += f"{argumentOutput} \"output/{OutputDomaine}/{NomProgramme}-{datetime.datetime.now().strftime('%d%m%y')}.txt\""
-			print(commande)
 
 			if os.name == 'nt':
 				subprocess.Popen(f"mkdir output\\\"{OutputDomaine}\"", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).communicate()
@@ -86,7 +85,7 @@ def OutputScan(NomProgramme, OutputDomaine, commande, argumentOutput):
 				subprocess.Popen(f"mkdir -p output/\"{OutputDomaine}\"", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).communicate()
 				subprocess.Popen(f"python3 {commande}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).communicate()
 
-		print(f"\n{NomProgramme} vient de terminer son execution, vous pouvez observer les résultats\nLe fichier est situé dans output/{OutputDomaine}/dnscan-{datetime.datetime.now().strftime('%d%m%y')}.txt\"")
+		print(f"\n{NomProgramme} vient de terminer son execution, vous pouvez observer les résultats\nLe fichier est situé dans output/{OutputDomaine}/{NomProgramme}-{datetime.datetime.now().strftime('%d%m%y')}\"")
 
 	else :
 		if NomProgramme == "urlscan":

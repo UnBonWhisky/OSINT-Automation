@@ -21,6 +21,28 @@ Afin d'obtenir les résultats que pourraient produire les outils intégrés, vou
 docker run -v path/to/your/folder:/app/output -it tp2osint:latest
 ```
 --------------
+## Comment executer notre outil
+### Dans le cas où vous utilisez le code source lui-même
+- Installez python 3.10+. Si ce n'est pas déjà fait, [voici un lien pour le télécharger](https://www.python.org/downloads/)
+- Décompressez l'archive ZIP téléchargée en cliquant sur le bouton "Code" (avec 7zip, WinRAR ou gzip par exemple)
+- Ouvrez un terminal dans le dossier décompressé précédemment
+- utilisez pip pour installer les dépendances :  
+    Pour Windows : `py -3 -m pip install -r requirements.txt`  
+    Pour Linux : `python3 -m pip install -r requirements.txt`
+- Lancez le programme python avec la commande suivante :  
+  Pour Windows : `py -3 main.py`  
+  Pour Linux : `python3 main.py`
+---
+### Dans le cas où vous utilisez Docker
+- Installez [Docker](https://docs.docker.com/engine/install/)
+- Décompressez l'archive ZIP téléchargée en cliquant sur le bouton "Code" (avec 7zip, WinRAR ou gzip par exemple)
+- Ouvrez un terminal dans le dossier décompressé précédemment
+- Tapez la commande suivante afin de build le dockerfile :  
+  `docker build --pull --rm -f "Dockerfile" -t tp2osint:latest "."`
+- Tapez ensuite la commande suivante pour lancer le container que vous venez de build :  
+  `docker run -v path/to/your/folder:/app/output -it tp2osint:latest`  
+  N'oubliez pas de changer le `path/to/your/folder` par un dossier de votre ordinateur
+--------------
 ## Bug connu 
 - theHarvester n'est pas compatible avec des versions antérieures à python 3.10
 --------------

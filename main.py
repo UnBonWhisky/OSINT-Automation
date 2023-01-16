@@ -91,7 +91,10 @@ def OutputScan(NomProgramme, OutputDomaine, commande, argumentOutput):
 		if NomProgramme == "urlscan":
 			print(f"\nL'URL de votre résultat est disponible ici :\n{commande}")
 		else:
-			subprocess.Popen(f"python3 {commande}", shell=True).communicate()
+			if os.name == 'nt':
+				subprocess.Popen(f"py -3 {commande}", shell=True). communicate()
+			else :
+				subprocess.Popen(f"python3 {commande}", shell=True).communicate()
 
 	return
 
@@ -444,7 +447,7 @@ Votre choix : """)
 			if reponse < 1 or reponse > len(ListeFichiers) :
 				raise Exception
 		except:
-			print(f"Vous n'avez pas entré un nombre entre 1 et {ListeFichiers}\n")
+			print(f"Vous n'avez pas entré un nombre entre 1 et {len(ListeFichiers)}\n")
 			reponse = None
 
 	PassingArguments += f"-g {directory}/google-dorks/dorks/{ListeFichiers[reponse-1]} "

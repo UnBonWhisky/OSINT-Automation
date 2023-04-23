@@ -1,4 +1,4 @@
-# TP2 - OSINT Automation
+# OSINT Automation
 Ceci est un projet scolaire réalisé par :
 - Amine LACHGAR ([@Marokingu](https://github.com/Marokingu))
 - Alexi LOREAUX ([@alexilrx](https://github.com/alexilrx))
